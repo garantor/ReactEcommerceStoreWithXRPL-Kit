@@ -37,8 +37,8 @@ async function onClicked(params) {
         console.log(params)
         let kitInstance = new XRPLKit(EsupportedWallet[params], Networks.TESTNET)
         console.log(kitInstance)
+        cart.setKit(kitInstance)
         let connect = await kitInstance.connectKitToWallet()
-        console.log(connect)
         const userAddress = connect.publicKey.result.address
       setIsOpen(false)
       console.log(userAddress)
