@@ -16,6 +16,7 @@ import { createContext, useContext, useState } from "react";
 import { CartContext } from "../CartContext";
 
 
+
   import {EsupportedWallet, XRPLKit, Networks} from 'xrpl-wallet-kit'
 
   
@@ -24,7 +25,6 @@ import { CartContext } from "../CartContext";
 
   export default function SelectWalletModal() {
     const [isOpen, setIsOpen] = useState(true);
-    // const [userPubKey, setPubKey] = useState();
     const cart = useContext(CartContext);
 
 
@@ -34,20 +34,30 @@ import { CartContext } from "../CartContext";
 
 
 async function onClicked(params) {
-        console.log(params)
         let kitInstance = new XRPLKit(EsupportedWallet[params], Networks.TESTNET)
-        console.log(kitInstance)
         cart.setKit(kitInstance)
-        let connect = await kitInstance.connectKitToWallet()
-        const userAddress = connect.publicKey.result.address
+        let userAddress;
       setIsOpen(false)
-      console.log(userAddress)
-      console.log(cart.publicKey)
 
-      // userPubKey = userAddress
+        let connect = await kitInstance.connectKitToWallet('88bee4f36f4af99034b9c53c4d64c4a8', 'ec787b10-c276-429e-b45f-c309ecb6c8cc')
+        console.log('this is the',connect)
+        switch (params) {
+          case 'GEM':
+            userAddress = connect.publicKey.result.address
+            break;
+          case 'XUMM':
+        console.log('this is the response ', connect.activeSession.me)
+            userAddress = connect.activeSession.me.account
+              break;
+            case 'WALLETCONNECT':
+                userAddress = connect.activeSession.namespaces.xrpl.accounts[0].slice(7)
+                  break;
+        
+          default:
+            break;
+        }
+       
       cart.addPublicKey(userAddress)
-
-      // console.log(userPubKey)
       console.log(cart.publicKey)
 
 
@@ -60,7 +70,6 @@ async function onClicked(params) {
         <ModalOverlay />
         <ModalContent w="300px">
           <ModalHeader>Select Wallet</ModalHeader>
-          {/* <ModalCloseButton/> */}
           <ModalBody paddingBottom="1.5rem">
             <VStack>
               <Button
@@ -71,7 +80,7 @@ async function onClicked(params) {
               >
                 <HStack w="100%" justifyContent="center">
                   <Image
-                    src="/cbw.png"
+                    src="./xumm.png"
                     alt="Coinbase Wallet Logo"
                     width={25}
                     height={25}
@@ -87,7 +96,7 @@ async function onClicked(params) {
               >
                 <HStack w="100%" justifyContent="center">
                   <Image
-                    src="/images.png"
+                    src="/gem.png"
                     alt="Wallet Connect Logo"
                     width={26}
                     height={26}
@@ -104,7 +113,7 @@ async function onClicked(params) {
               >
                 <HStack w="100%" justifyContent="center">
                   <Image
-                    src="/mm.png"
+                    src="/walletConnect.png"
                     alt="Metamask Logo"
                     width={25}
                     height={25}
@@ -123,7 +132,9 @@ async function onClicked(params) {
 
         </ModalContent>
       </Modal>
+      
     );
+    {}
   }
   
 

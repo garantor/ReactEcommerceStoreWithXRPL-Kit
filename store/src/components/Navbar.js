@@ -4,6 +4,7 @@ import { CartContext } from "../CartContext";
 import CartProduct from './CartProduct';
 import SelectWalletModal from './modal';
 import Badge from 'react-bootstrap/Badge';
+import openPopWindow from "./BrowserModal"
 
 
 function NavbarComponent() {
@@ -13,6 +14,8 @@ function NavbarComponent() {
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
     const handleModalClose = () => setShow(false);
+    const [txResult, settxResult] = useState();
+
 
 
 
@@ -26,6 +29,7 @@ function NavbarComponent() {
         let amount = Math.ceil(cart.getTotalCost())
         console.log(amount)
         console.log(`${amount}0000000`)
+
        let tx;
         switch (selectedwallet) {
             case "GEMWallet":
@@ -34,21 +38,62 @@ function NavbarComponent() {
                     "destination": "r4MPsJ8SmQZGzk4dFxEoJHEF886bfX4rhu",
                     "amount": `${amount}0000000` //need to fix price precision
                     })
+                    console.log("gem wallet ",tx)
+                    const sendTxGem =  await kit.signTransaction(tx)
+                    settxResult(sendTxGem)
+            
+                    console.log("sendTxGem ", sendTxGem)
+                //    openPopWindow(`${sendTx.created.next.always}`, 500, 500)
                 break;
             case "XUMM":
                 console.log("this is a XUMM tranaction")
+                tx = ({
+                    "txjson":{
+                       "TransactionType":"Payment",
+                       "Account":cart.publicKey,
+                       "Destination":"r4MPsJ8SmQZGzk4dFxEoJHEF886bfX4rhu",
+                       "Amount": `${amount}0000000`
+                    }
+                 }) 
+                 console.log("this is xumm wallet ",tx)
+                 const sendTxXumm =  await kit.signTransaction(tx)
+                 settxResult("sendTxXumm", sendTxXumm)
+         
+                 console.log(sendTxXumm)
+                openPopWindow(`${sendTxXumm.created.next.always}`, 500, 500)
                 break;
-            case 'WALLETCONNECT':
+            case 'WalletConnect':
+                let wcId = kit.getNetwork()
+                console.log('this is the wcid ',wcId)
                 console.log("this is a WALLETCOnnect tranaction")
+                let transaction =  {tx_json:{
+                    "TransactionType":"Payment",
+                    "Account":cart.publicKey,
+                    "Destination":"r4MPsJ8SmQZGzk4dFxEoJHEF886bfX4rhu",
+                    "Amount": `${amount}0000000`
+                 }}
+
+                tx = ({
+                    request: {
+                      method: "xrpl_signTransaction",
+                      params: [transaction]
+                    },
+                    chainId: wcId.walletconnectId
+                  })
+
+                 console.log("this is xumm wallet ",tx)
+                 const sendTxWC =  await kit.signTransaction(tx)
+                 settxResult("sendTxWC", sendTxWC)
+         
+                 console.log(sendTxWC)
+                
                 break;
         
             default:
                 break;
         }
-        const sendTx =  await kit.signTransaction(tx)
-        console.log(sendTx)
+      
         
-        // let payment =await kit.signTransaction()
 
 
     }
@@ -96,9 +141,9 @@ function NavbarComponent() {
                     }
                 </Modal.Body>
             </Modal>
-            {/* {modal && <SelectWalletModal isOpen={modal} />} */}
 
-            {/* {modal && <MydModalWithGrid show={modal} onHide={() => setModal(false)}/>} */}
+            {/* {txResult && <TxModal/>} */}
+
         </>
     )
 }
