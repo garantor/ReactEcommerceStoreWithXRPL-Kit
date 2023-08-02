@@ -4,25 +4,96 @@ import { CartContext } from "../CartContext";
 import CartProduct from './CartProduct';
 import SelectWalletModal from './modal';
 import Badge from 'react-bootstrap/Badge';
-import { WalletInitContext } from '../WalletContext';
+import openPopWindow from "./BrowserModal"
 
 
 function NavbarComponent() {
     const cart = useContext(CartContext);
-    // const usePubKey = useContext(WalletInitContext)
-    // console.log(usePubKey)
 
     const [show, setShow] = useState(false);
-    const [modal, setModal] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
     const handleModalClose = () => setShow(false);
+    const [txResult, settxResult] = useState();
+
 
 
 
     const checkout = async () => {
-        setModal(!modal)
         handleClose()
+
+        console.log("this is it ")
+        const kit = cart.kit
+        let selectedwallet = await kit.getSelectedWallet()
+        console.log(selectedwallet)
+        let amount = Math.ceil(cart.getTotalCost())
+        console.log(amount)
+        console.log(`${amount}0000000`)
+
+       let tx;
+        switch (selectedwallet) {
+            case "GEMWallet":
+                console.log("this is a gem tranaction")
+                tx = ({
+                    "destination": "r4MPsJ8SmQZGzk4dFxEoJHEF886bfX4rhu",
+                    "amount": `${amount}0000000` //need to fix price precision
+                    })
+                    console.log("gem wallet ",tx)
+                    const sendTxGem =  await kit.signTransaction(tx)
+                    settxResult(sendTxGem)
+            
+                    console.log("sendTxGem ", sendTxGem)
+                //    openPopWindow(`${sendTx.created.next.always}`, 500, 500)
+                break;
+            case "XUMM":
+                console.log("this is a XUMM tranaction")
+                tx = ({
+                    "txjson":{
+                       "TransactionType":"Payment",
+                       "Account":cart.publicKey,
+                       "Destination":"r4MPsJ8SmQZGzk4dFxEoJHEF886bfX4rhu",
+                       "Amount": `${amount}0000000`
+                    }
+                 }) 
+                 console.log("this is xumm wallet ",tx)
+                 const sendTxXumm =  await kit.signTransaction(tx)
+                 settxResult("sendTxXumm", sendTxXumm)
+         
+                 console.log(sendTxXumm)
+                openPopWindow(`${sendTxXumm.created.next.always}`, 500, 500)
+                break;
+            case 'WalletConnect':
+                let wcId = kit.getNetwork()
+                console.log('this is the wcid ',wcId)
+                console.log("this is a WALLETCOnnect tranaction")
+                let transaction =  {tx_json:{
+                    "TransactionType":"Payment",
+                    "Account":cart.publicKey,
+                    "Destination":"r4MPsJ8SmQZGzk4dFxEoJHEF886bfX4rhu",
+                    "Amount": `${amount}0000000`
+                 }}
+
+                tx = ({
+                    request: {
+                      method: "xrpl_signTransaction",
+                      params: [transaction]
+                    },
+                    chainId: wcId.walletconnectId
+                  })
+
+                 console.log("this is xumm wallet ",tx)
+                 const sendTxWC =  await kit.signTransaction(tx)
+                 settxResult("sendTxWC", sendTxWC)
+         
+                 console.log(sendTxWC)
+                
+                break;
+        
+            default:
+                break;
+        }
+      
+        
 
 
     }
@@ -41,7 +112,7 @@ function NavbarComponent() {
                 </Navbar.Collapse>
                 <Navbar.Collapse className="justify-content-end">
                     <h3>
-                       <Badge bg="secondary">(address: {pubKey} )</Badge>
+                       <Badge bg="secondary"> {pubKey ? (pubKey.slice(0, 4) + "..." + pubKey.slice(-4)) : "Connect address"} </Badge>
                     </h3>
 
 
@@ -70,9 +141,9 @@ function NavbarComponent() {
                     }
                 </Modal.Body>
             </Modal>
-            {modal && <SelectWalletModal isOpen={modal} />}
 
-            {/* {modal && <MydModalWithGrid show={modal} onHide={() => setModal(false)}/>} */}
+            {/* {txResult && <TxModal/>} */}
+
         </>
     )
 }

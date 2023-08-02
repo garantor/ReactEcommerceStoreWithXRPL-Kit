@@ -1,10 +1,13 @@
 import { createContext, useState } from "react";
 import { productsArray, getProductData } from "./productsStore";
+import { XRPLKit } from "xrpl-wallet-kit";
 
 
 export const CartContext = createContext({
     items: [],
     publicKey:'',
+    kit:null,
+    setKit:() => {},
     addPublicKey: () => {},
     getProductQuantity: () => {},
     addOneToCart: () => {},
@@ -16,6 +19,7 @@ export const CartContext = createContext({
 export function CartProvider({children}) {
     const [cartProducts, setCartProducts] = useState([]);
     const [publicKey, setPublicKey] = useState();
+    const [kit, setKit] = useState();
     
     // [ { id: 1 , quantity: 3 }, { id: 2, quantity: 1 } ]
 
@@ -30,9 +34,11 @@ export function CartProvider({children}) {
     }
     function addPublicKey(publicKey){
         setPublicKey(publicKey)
-        
-
     }
+    function addKitInstance(Kit){
+        setKit(kit)
+    }
+    
 
     function addOneToCart(id) {
         const quantity = getProductQuantity(id);
@@ -103,6 +109,8 @@ export function CartProvider({children}) {
     const contextValue = {
         items: cartProducts,
         publicKey,
+        kit,
+        setKit,
         addPublicKey,
         getProductQuantity,
         addOneToCart,
