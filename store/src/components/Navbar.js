@@ -29,14 +29,24 @@ function NavbarComponent() {
         let amount = Math.ceil(cart.getTotalCost())
         console.log(amount)
         console.log(`${amount}0000000`)
+        // "destination": "r4MPsJ8SmQZGzk4dFxEoJHEF886bfX4rhu",
+        // "amount": `${amount}0000000` //need to fix price precision
 
        let tx;
         switch (selectedwallet) {
             case "GEMWallet":
                 console.log("this is a gem tranaction")
                 tx = ({
-                    "destination": "r4MPsJ8SmQZGzk4dFxEoJHEF886bfX4rhu",
-                    "amount": `${amount}0000000` //need to fix price precision
+                    
+                        "TransactionType": "TrustSet",
+                        "Account": cart.publicKey,
+                        "LimitAmount": {
+                          "currency": "USD",
+                          "issuer": "r4MPsJ8SmQZGzk4dFxEoJHEF886bfX4rhu",
+                          "value": "100"
+                        },
+                    
+                   
                     })
                     console.log("gem wallet ",tx)
                     const sendTxGem =  await kit.signTransaction(tx)
@@ -48,19 +58,17 @@ function NavbarComponent() {
             case "XUMM":
                 console.log("this is a XUMM tranaction")
                 tx = ({
-                    "txjson":{
                        "TransactionType":"Payment",
                        "Account":cart.publicKey,
                        "Destination":"r4MPsJ8SmQZGzk4dFxEoJHEF886bfX4rhu",
                        "Amount": `${amount}0000000`
-                    }
                  }) 
+                 
                  console.log("this is xumm wallet ",tx)
                  const sendTxXumm =  await kit.signTransaction(tx)
                  settxResult("sendTxXumm", sendTxXumm)
          
                  console.log(sendTxXumm)
-                openPopWindow(`${sendTxXumm.created.next.always}`, 500, 500)
                 break;
             case 'WalletConnect':
                 let wcId = kit.getNetwork()
