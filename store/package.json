@@ -16,7 +16,7 @@
     "react-router-dom": "^6.4.1",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4",
-    "xrpl-wallet-kit": "file:../../xrpl-wallet-kit2"
+    "xrpl-wallet-kit": "file:../../xrpl-wallet-kit"
   },
   "scripts": {
     "start": "react-scripts start",

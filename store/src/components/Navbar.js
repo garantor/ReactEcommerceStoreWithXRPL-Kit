@@ -4,7 +4,6 @@ import { CartContext } from "../CartContext";
 import CartProduct from './CartProduct';
 import SelectWalletModal from './modal';
 import Badge from 'react-bootstrap/Badge';
-import openPopWindow from "./BrowserModal"
 
 
 function NavbarComponent() {
@@ -53,7 +52,6 @@ function NavbarComponent() {
                     settxResult(sendTxGem)
             
                     console.log("sendTxGem ", sendTxGem)
-                //    openPopWindow(`${sendTx.created.next.always}`, 500, 500)
                 break;
             case "XUMM":
                 console.log("this is a XUMM tranaction")
@@ -78,7 +76,7 @@ function NavbarComponent() {
                     "TransactionType":"Payment",
                     "Account":cart.publicKey,
                     "Destination":"r4MPsJ8SmQZGzk4dFxEoJHEF886bfX4rhu",
-                    "Amount": `${amount}0000000`
+                    "Amount": `${amount}000000`
                  }}
 
                 tx = ({

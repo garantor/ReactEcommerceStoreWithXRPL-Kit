@@ -1,6 +1,5 @@
 import { createContext, useState } from "react";
 import { productsArray, getProductData } from "./productsStore";
-import { XRPLKit } from "xrpl-wallet-kit";
 
 
 export const CartContext = createContext({
